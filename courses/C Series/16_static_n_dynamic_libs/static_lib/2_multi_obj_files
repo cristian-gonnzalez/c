@@ -1,0 +1,36 @@
+Compiling with multiple object files
+
+$ tree
+.
+├── cmath.o
+├── include
+│   ├── cmath.h
+│   └── cmult.h
+├── main.o
+├── prog
+└── src
+    ├── cmath.c
+    ├── cmult.c
+    └── main.c
+
+2 directories, 8 files
+
+Compile cmult objet file
+
+$ gcc -c ./src/cmult.c -I./include
+$ ls
+cmath.o  cmult.o  include  main.o  prog  src
+         ~~~~~~~
+
+Recompile main.o to include new changes
+
+$ gcc -c ./src/main.c -I./include
+$ ls
+cmath.o  cmult.o  include  main.o  prog  src
+
+Compile all object files and run the prog
+$ gcc main.o cmath.o cmult.o -o prog
+
+$ ./prog 
+add(4, 7) = 11
+mult(4, 7) = 28

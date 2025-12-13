@@ -1,0 +1,82 @@
+
+
+
+
+    $ gcc ./src/main.c -o prog
+    ./src/main.c:13:10: fatal error: cmath.h: No such file or directory
+    13 | #include "cmath.h"
+        |          ^~~~~~~~~
+    compilation terminated.
+
+
+    $ gcc ./src/main.c -o prog -I./include
+    /usr/bin/ld: /tmp/ccfBJMv7.o: in function `main':
+    main.c:(.text+0x13): undefined reference to `add'
+    /usr/bin/ld: main.c:(.text+0x35): undefined reference to `mult'
+    collect2: error: ld returned 1 exit status
+
+These error are not comming from the compiler but they are comming from the Linker
+
+
+$ gcc ./src/main.c -o prog -I./include -lcmath.so -lcmult.so
+/usr/bin/ld: cannot find -lcmath.so
+/usr/bin/ld: cannot find -lcmult.so
+collect2: error: ld returned 1 exit status
+
+
+$ gcc ./src/main.c -o prog -I./include -lcmath.so -lcmult.so -L./
+                                                             ~~~~
+                                                              ^
+                                                      We have to tell the compiler in which directory the libraries are   
+/usr/bin/ld: cannot find -lcmath.so
+/usr/bin/ld: cannot find -lcmult.so
+collect2: error: ld returned 1 exit status
+
+
+collect2: error: ld returned 1 exit status
+$ mv cmath.so libcmath.so
+$ mv cmult.so libcmult.so
+$ gcc ./src/main.c -o prog -I./include -lcmath -lcmult -L./
+$ ./prog 
+./prog: error while loading shared libraries: libcmath.so: cannot open shared object file: No such file or directory
+
+
+NOTE: 
+    Linker errors usually are 'undefined reference' type mesages.
+    They are comming from the linker, stating that some code is otherwise missing -- specially the implementation (expected in a .c, .o or ,so file)
+
+Link the libraries
+
+WARNING:
+    Pay careful attention to what '-l' (lowecase L) is doing here.
+    It expects the library named 'libcmath.so' (prefix:lib and suffix:.so)
+                                ~~~      ~~
+    When we pass in our library 'lib' and '.so' are not needed.
+
+
+    $ mv cmath.so libcmath.so
+    $ mv cmult.so libcmult.so
+    $ gcc ./src/main.c -o prog -I./include -lcmath -lcmult -L./
+    $ ./prog 
+    ./prog: error while loading shared libraries: libcmath.so: cannot open shared object file: No such file or directory
+
+Now we need to specify the LD_LIBRARY_PATH. You can put your libraries in a know location if you need. Often times, 'program launchers' (executable, scripts) 
+will prepend this path for you
+
+    $ LD_LIBRARY_PATH="./" ./prog
+    add(4, 7) = 11
+    mult(4, 7) = 28
+
+
+$ objdump -t prog 
+
+prog:     file format elf64-x86-64
+
+SYMBOL TABLE:
+0000000000000000       F *UND*  0000000000000000              add
+0000000000000000       F *UND*  0000000000000000              mult
+                          ~~~
+                          Undifined
+
+                This tools is telling me that the function exitst but they dont know
+                what to do with this. That's why we need to specify where to look for
