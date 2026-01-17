@@ -1,0 +1,127 @@
+Compilation:
+-----------
+
+-- Header files (.h)
+
+    - Provide declarations:
+        -- Function prototypes
+        -- typedefs
+        -- structs
+        -- constants
+    - Do NOT contain executable code (code that gets compiled).
+    - Are included using the #include directive.
+    - Use header guards to avoid multiple inclusion.
+
+
+   Example: math.h
+                
+                    #ifndef MATH_H
+                    #define MATH_H
+
+                    int add(int a, int b);
+
+                    #endif
+
+
+-- Source files (.c)
+
+    - Contain the implementation (function bodies).
+    - Are individually compiled into object files (.o).
+
+  Example: math.c
+
+                    #include "math.h"
+
+                    int add(int a, int b) {
+                        return a + b;
+                    }
+
+--- How #include works?
+    The preprocessor literally copies the contents of the header into the .c file before the compiler runs.
+
+    After preprocessing, math.c becomes something like:
+
+  
+                                           After preprocessing:
+    math.c ===>     #include "math.h"        ======>                int add(int a, int b);
+
+                    int add(int a, int b) {                         int add(int a, int b) {
+                      return a + b;                                     return a + b;
+                    }                                               }
+
+
+  
+    main.c  ====>   #include "math.h"         =====>        int add(int a, int b);
+
+                    int main() {                            int main() {
+                        add(1, 4);                              add(1, 4);
+                        return 0;                               return 0;
+                    }                                       }
+
+
+-- Single-step compilation:
+
+
+> gcc main.c math.c -o prog
+   
+  ____       ____        ____
+ |    |     |    |      |    |
+ |    |     |    |      |    |
+ |____|     |____|      |____|
+  main.c     math.c      math.h
+  ~~~~~      ~~~~~
+   ^           ^
+   |           |
+   |___________|
+   		|         ____
+   	   gcc ->  |1001|   ->   ./prog
+   	           |0101|
+   	           |____|
+   	 
+NOTES:
+    - Only .c files are compiled by gcc
+    - Header files (.h) are not compiled
+    - Header files are textually included into .c files by the preprocessor using #include
+
+    If the header files are in a different direcory, we use:
+	    -I (capital i) tells our compiler where to find the header files for our project.
+
+
+- Project structure:
+
+            .                                                                                                                                                                                                                             
+            ├── include
+            │   └── math.h
+            └── src
+               ├── math.c
+               └── main.c
+
+-- Compile and link in one step:
+     
+            $ gcc src/main.c src/math.c -I include -o prog
+                                        ^~~~~~~~~~
+                                    If not used, the compiler try to find the .h files
+                                  in the current directory     
+
+
+-- Step-by-step compilation:
+
+Step by step
+
+1.  Compile source files into object files:
+
+            $ gcc -I include/ -c src/main.c -o main.o
+            $ gcc -I include/ -c src/math.c -o math.o
+
+2. Link object files into an executable:
+
+            $ gcc main.o math.o -o prog
+
+
+Summary:
+
+        - Header files provide declarations
+        - Source files provide implementations
+        - The preprocessor handles #include
+        - Each .c file is compiled into a .o file
+        - The linker combines object files into an executable

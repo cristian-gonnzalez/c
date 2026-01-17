@@ -1,0 +1,56 @@
+Shared Objects (Dynamic Libraries):
+----------------------------------
+  Shared libraries allow code to be loaded at runtime instead of being bundled into the executable.
+
+
+- Platform-specific extensions:
+
+    .so     - linux (shared object)
+    .dll    - windows (dynamic linked library)
+    .dylib  - macOS  (dynamic library)
+
+
+- Relevant gcc options:
+
+  -f flag
+        PIC    Position Independent Code:
+                 The job of the linker is relocation and resolution of symbols. -fPIC is needed to make shared libraries work.
+                 
+                 Shared libraries must be position independent so they can be loaded at arbitrary memory addresses. The linker 
+               performs relocation and symbol resolution, and -fPIC enables this behavior.
+  -shared      Produce a shared library instead of an executable.
+  -o           Specify the output file name.
+
+
+-- Project structure:
+
+            $ tree
+            .
+            ├── include
+            │   ├── cmath.h
+            │   └── cmult.h
+            └── src
+                ├── cmath.c
+                ├── cmult.c
+                └── main.c
+
+            2 directories, 5 files
+
+-- Create the shared libraries:
+
+            $ gcc -fPIC -shared ./src/cmath.c -I./include -o cmath.so
+            $ ls
+            cmath.so  include  src
+            ^~~~~~~~
+
+            $ gcc -fPIC -shared ./src/cmult.c -I./include -o cmult.so
+            $ ls
+            cmath.so  cmult.so  include  src
+            ^~~~~~~~  ^~~~~~~~
+
+NOTE:
+    - Shared libraries are loaded at runtime by the dynamic linker
+    - Multiple programs can share the same shared library in memory
+    - Executables linked against shared libraries are usually smaller
+    - Updating a shared library does not require recompiling programs
+    that use it (as long as the ABI is compatible)

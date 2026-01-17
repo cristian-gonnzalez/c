@@ -1,0 +1,102 @@
+
+- ODR Rules by Category
+
+1 Objects & Functions with External Linkage
+
+  Rule:
+    Must have exactly one definition in the entire program
+
+            ✅ Correct:                         ❌ Incorrect:
+
+            // header.h                          // a.cpp  
+            extern int x;                        int x = 1;  
+
+            // source.cpp                        // b.cpp
+            int x = 42;                          int x = 2; // ODR violation
+
+
+2. Objects & Functions with Internal Linkage:
+
+   Rule:
+        May be defined once per translation unit
+
+            // header.h
+            static int x = 10;  // safe in header
+
+
+    Each .cpp gets its own x.
+
+    Why each translation unit gets its own x?
+
+    Consider this:
+
+            // header.h
+            static int x = 10;
+
+            // a.cpp                               // b.cpp
+            #include "header.h"                    #include "header.h"
+            void fa() { ++x; }                     void fb() { ++x; }
+
+    What happens?
+        - a.cpp sees its own static int x
+        - b.cpp sees a different static int x
+        - The linker never tries to merge them
+        - They have internal linkage, so their names are private
+
+    Conceptually, it’s like the compiler secretly does:
+
+        // a.cpp
+        static int x_a = 10;
+
+        // b.cpp
+        static int x_b = 10;
+
+
+3. Inline Functions (special ODR rule):
+
+            // header.h
+            inline int add(int a, int b) {
+                return a + b;
+            }
+
+        - May be defined in multiple translation units
+        - All definitions must be identical
+        - Treated as one entity by the linker
+
+    This is why inline functions belong in headers.
+
+4. Class Definitions:
+
+            // header.h
+            struct Point {
+                int x;
+                int y;
+            };
+
+        - Class definitions may appear in multiple translation units
+        - All must be identical
+        - This is a special ODR exemption
+
+5. Templates
+
+   Templates behave like inline entities:
+
+            template<typename T>
+            T max(T a, T b) { return a > b ? a : b; }
+
+        - Defined in headers
+        - Instantiated as needed
+        - All definitions must match
+
+
+--- How ODR and Linkage Interact:
+
+        | Entity type       | Linkage  | Allowed definitions          |
+        | ----------------- | -------- | ---------------------------- |
+        | Global variable   | External | Exactly **one program-wide** |
+        | Global variable   | Internal | **One per translation unit** |
+        | Function          | External | Exactly **one program-wide** |
+        | `inline` function | External | Many (identical)             |
+        | Class definition  | N/A      | Many (identical)             |
+        | Template          | N/A      | Many (identical)             |
+

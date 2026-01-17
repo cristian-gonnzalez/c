@@ -1,0 +1,68 @@
+The One Definition Rule (ODR):
+-----------------------------
+
+  The One Definition Rule says:
+
+        Certain entities in a C/C++ program must have exactly one 'definition', while others 
+      may have multiple definitions, depending on their kind and linkage.
+
+  Violating the ODR results in 'undefined behavior' (sometimes a linker error, sometimes silent bugs).
+
+
+NOTE: Declaration vs Definition (important distinction):
+
+    Before ODR makes sense:
+
+        int x;        // declaration AND definition
+        extern int y; // declaration only
+
+
+    - Declaration: tells the compiler something exists
+    - Definition: actually creates the entity (storage or body)
+
+-- Linkage: Internal vs External
+    Linkage determines visibility across translation units.
+
+--- Internal Linkage:
+
+    An entity with internal linkage:
+
+        - Is visible only within its translation unit
+        - Each translation unit gets its own separate instance
+
+    Created by:
+
+        - static at namespace/global scope
+        - unnamed namespaces (C++)
+        - some const globals in C++
+
+    Example
+
+            // file1.cpp
+            static int counter = 0;  // internal linkage
+
+            // file2.cpp
+            static int counter = 0;  // completely different variable
+
+    These do not conflict.
+
+-- External Linkage:
+
+    An entity with external linkage:
+
+        - Is visible across translation units
+        - Refers to one shared entity in the program
+
+    Created by:
+
+        - Non-static globals
+        - Functions by default
+        - extern variables
+
+    Example:
+
+            // file1.cpp
+            int counter = 0;  // external linkage
+
+            // file2.cpp
+            int counter = 0;  // ❌ ODR violation (multiple definitions)

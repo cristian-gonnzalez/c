@@ -1,0 +1,70 @@
+Translation unit:
+----------------
+
+  In C and C++, a translation unit is the basic unit of source code that the compiler processes 
+after preprocessing and before code generation.
+
+Precise definition:
+
+  A translation unit consists of:
+
+            - One source file (e.g., .c, .cpp)
+            - Plus all the contents of headers and macros included into it via #include and 
+            other preprocessor directives
+
+  After the preprocessor runs, the compiler sees one large, combined source file — that is the translation unit.
+
+  Think of a translation unit as: “What the compiler sees when compiling one source file.”
+
+Example:
+
+    // main.cpp
+            #include <iostream>
+            #include "utils.h"
+
+            int main() {
+                print();
+            }
+
+    // utils.h
+            void print();
+
+
+    After preprocessing, the translation unit is effectively:
+
+    // main.cpp (after preprocessing)
+            void print();
+
+            int main() {
+                print();
+            }
+
+    This entire result is one translation unit.
+
+
+Key points:
+        - Each .c or .cpp file becomes a separate translation unit
+        - Headers (.h) do not form translation units on their own
+        - The same header included in multiple .cpp files becomes part of multiple translation units
+        - Translation units are compiled independently
+        - The linker later combines the compiled translation units into a final program
+
+-- Why translation units matter?
+
+   They affect:
+
+        1. Linkage
+
+            -- static functions/variables have internal linkage (visible only within one translation unit)
+            -- Non-static globals have external linkage (visible across translation units)
+
+        2. One Definition Rule (ODR)
+
+            -- Some entities must be defined once per program
+            -- Others may be defined once per translation unit
+
+           Violating ODR often leads to linker errors or undefined behavior.
+
+        3. Compile times and dependencies
+
+            Changes to headers can force recompilation of every translation unit that includes them

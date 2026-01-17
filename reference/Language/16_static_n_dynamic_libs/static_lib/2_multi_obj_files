@@ -1,0 +1,48 @@
+Compiling with multiple object files
+
+
+-- Project structure:
+
+            $ tree
+            .
+            ├── cmath.o
+            ├── include
+            │   ├── cmath.h
+            │   └── cmult.h
+            ├── main.o
+            ├── prog
+            └── src
+                ├── cmath.c
+                ├── cmult.c
+                └── main.c
+
+            2 directories, 8 files
+
+1. Compile cmult.o objet file
+
+            $ gcc -c ./src/cmult.c -I./include
+            $ ls
+            cmath.o  cmult.o  include  main.o  prog  src
+                     ^~~~~~~
+
+2. Recompile main.o to include new changes.
+     Since main.c now depends on cmult.h and/or new symbols, it must be
+   recompiled to reflect those changes.
+
+            $ gcc -c ./src/main.c -I./include
+            $ ls
+            cmath.o  cmult.o  include  main.o  prog  src
+
+3. Link all object files and run the program
+
+            $ gcc main.o cmath.o cmult.o -o prog
+
+            $ ./prog 
+            add(4, 7) = 11
+            mult(4, 7) = 28
+
+NOTES:
+    - Each .c file is compiled independently into a .o file
+    - When a source file changes, only its corresponding .o file needs recompilation
+    - The linker combines all required object files into the final executable
+    - Missing object files during linking will result in "undefined reference" errors

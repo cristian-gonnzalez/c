@@ -7,6 +7,15 @@
 
 #include <stdio.h>
 
+/*
+Union:
+   Unions are the size of the largest element and take on a specific type
+when utilized -- but remain just 1 specific 'type'
+
+Structs:
+  structs are an aggregate data strcuture, storing multiple elements.
+*/
+
 typedef union v2
 {
     // Underlying data

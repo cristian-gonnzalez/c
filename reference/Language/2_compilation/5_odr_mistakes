@@ -1,0 +1,59 @@
+ODR Mistakes
+
+Example 1:
+
+    ❌ Defining variables in headers
+                // header.h
+                int x = 5; // BAD
+
+
+    Included in multiple .cpp files → multiple definitions.
+
+    ✅ Fix:
+
+                // header.h
+                extern int x;
+
+                // source.cpp
+                int x = 5;
+
+        OR:
+
+                // header.h
+                inline int x = 5; // C++17
+
+Example 2:
+
+    ❌ Forgetting static in C headers
+                // utils.h
+                int helper() { return 42; } // ODR violation
+
+
+    ✅ Fix:
+
+            static int helper() { return 42; }
+        
+
+
+- Mental Model
+
+    - Linkage: Who can see this name?
+    - ODR: How many times may it be defined?
+        -- Internal linkage → multiple definitions OK
+        -- External linkage → exactly one definition (unless inline/template/class)
+
+--- Summary:
+
+    - Internal linkage = private to translation unit
+    - External linkage = shared across program
+    - ODR enforces correct number of definitions
+    - Headers should contain:
+
+        -- declarations
+        -- inline functions
+        -- templates
+        -- types
+
+    - Source files should contain:
+        -- non-inline function bodies
+        -- global variable definitions

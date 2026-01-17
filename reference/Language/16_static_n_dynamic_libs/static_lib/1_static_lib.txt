@@ -1,0 +1,105 @@
+Static libraries:
+----------------
+ 
+    .o files are 'object files'. These are the result of compiling source files (.c files).
+  We can statically link together a series of .o files together to build a program. 
+   
+    .o files are compiled for specific architectures, so my .o file is unlikely to run on M1 Apple silicon for example.
+They contain machine code and symbols (function and variable names), but they are not executable by themselves.
+
+
+    A static library are typically .a files. It is NOT a .o file.
+    A static library is an archive of multiple object files that are linked into the executable at link-time.
+
+
+-- Project structure:
+
+            $ tree
+            .                                                                                                                                                                                                                             
+            ├── include
+            │   └── cmath.h
+            └── src
+               ├── cmath.c
+               └── main.c
+
+            2 directories, 3 files
+
+
+-- Compilation step by step:
+
+1. Generate object files
+   Compile each source file into an object file using the -c option:
+
+         $ gcc -c ./src/main.c 
+         ./src/main.c:13:10: fatal error: cmath.h: No such file or directory
+            13 | #include "cmath.h"
+               |          ^~~~~~~~~
+         compilation terminated.
+
+   NOTE: we are including the .h file in the .c file with the '#inlcude' pre-processor. The compiler try to 
+find cmath.h in the current directory. Since the header file is located in ./include, we must tell the
+compiler where to search for header files using the -I option: 
+   
+         $ gcc -c ./src/main.c -I./include
+
+   This generates the object file main.o.
+
+         $ ls
+         include  main.o  src
+                  ^~~~~~
+
+   Repeat the same step for every .c file:
+
+         $ gcc -c ./src/cmath.c -I./include
+         cmath.o  include  main.o  src
+         ~~~~~~~
+
+NOTE:
+   object files (.o) are compiled machine code. They contain symbol (names of variables and functions) of our compiled code.
+   Object files are later linked together to produce:
+
+         - Executables
+         - Static libraries (.a)
+         - Shared libraries (.so)
+
+
+2. Link object files
+   Link the object files together to create the final executable:
+
+
+         $ gcc main.o cmath.o -o prog                This step is called linking.
+
+
+3. Run the program
+
+         $ ./prog 
+         add(4, 7) = 11
+
+NOTE: Binary size observation
+  When using static linking, the final executable contains all required
+compiled code:
+
+   $ ls -lh
+   total 28K
+   -rwxrwxrwx 1 cristian cristian 1.4K Sep 23 20:40 cmath.o
+                                  ~~~~
+   drwxrwxrwx 1 cristian cristian 4.0K Sep 23 20:21 include
+   -rwxrwxrwx 1 cristian cristian 1.8K Sep 23 20:39 main.o
+   -rwxrwxrwx 1 cristian cristian  17K Sep 23 20:45 prog
+                                   ~~~
+   drwxrwxrwx 1 cristian cristian 4.0K Sep 23 20:37 src
+
+
+  - The executable (prog) is larger because it includes the compiled code
+from all object files.
+  - With shared libraries, the executable would be smaller because code
+is loaded at runtime instead of being embedded.
+
+
+--- Summary:
+
+      - .c files are compiled into .o files
+      - .o files are linked into executables or libraries
+      - Static libraries (.a) are archives of object files
+      - Linking combines object files into a single executable
+      - Object files and binaries are architecture-dependent

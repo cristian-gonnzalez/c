@@ -1,0 +1,41 @@
+ar — Static Library Archiver:
+----------------------------
+
+  The 'ar' (archive) tool builds an index of multiple files that we can package together.
+  This allows us to distrbute a static library that may consist of multiples .o files packaged togehther.
+
+    r  - Insert files into the archive (replace if they already exist)
+    c  - Create the archive if it does not already exist
+    s  - Add an index to the archive (similar to running ranlib)
+
+
+-- Create a static library:
+
+            $ ar rcs mymath.a cmath.o cmult.o 
+                    ^~~~~~~~ ^~~~~~~~~~~~~~~~
+                    ^            ^
+                    |     object files to archive
+                    |
+                output archive (static library)
+
+
+            $ ls
+            cmath.o  cmult.o  include  main.o  mymath.a  prog  src
+                                            ^~~~~~~~
+    NOTE:
+        '.a' is named by convention for archive 
+        A '.a' file is an archive of one or more object files
+
+-- Build the program using the static library:
+   Link the static library with main.o to build the executable:
+
+            $ gcc main.o mymath.a -o prog 
+            $ ./prog 
+            add(4, 7) = 11
+            mult(4, 7) = 28
+
+Static linking notes:
+    When we 'statically link', everything is bundled together. This simplifies distribution to anyone to run './prog'.
+However, we are packages everything together, so think carefully if this what you want since static linking increases 
+the executable size and makes updates harder
+
